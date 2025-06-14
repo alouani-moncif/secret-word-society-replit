@@ -1,14 +1,40 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState, useEffect } from 'react';
+import { authService } from '../lib/auth.js';
+import { HomePage } from '../components/HomePage.jsx';
+import { GameRoom } from '../components/GameRoom.jsx';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+  const [currentRoom, setCurrentRoom] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
+
+  useEffect(() => {
+    authService.init().then(() => {
+      setAuthReady(true);
+    });
+  }, []);
+
+  const handleJoinRoom = (roomId) => {
+    setCurrentRoom(roomId);
+  };
+
+  const handleLeaveRoom = () => {
+    setCurrentRoom(null);
+  };
+
+  if (!authReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+        <div className="text-white text-xl">Loading...</div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (currentRoom) {
+    return <GameRoom roomId={currentRoom} onLeave={handleLeaveRoom} />;
+  }
+
+  return <HomePage onJoinRoom={handleJoinRoom} />;
 };
 
 export default Index;
